@@ -306,7 +306,7 @@ class RosdepLookup(object):
         """
         return self.errors[:]
 
-    def get_rosdeps(self, resource_name, implicit=True):
+    def get_rosdeps(self, resource_name, implicit=True, exclude_test_deps=False, include_doc_deps=False):
         """
         Get rosdeps that *resource_name* (e.g. package) requires.
 
@@ -315,7 +315,7 @@ class RosdepLookup(object):
 
         :returns: list of rosdep names, ``[str]``
         """
-        return self.loader.get_rosdeps(resource_name, implicit=implicit)
+        return self.loader.get_rosdeps(resource_name, implicit=implicit, exclude_test_deps=exclude_test_deps, include_doc_deps=include_doc_deps)
 
     def get_resources_that_need(self, rosdep_name):
         """

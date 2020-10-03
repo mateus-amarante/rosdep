@@ -368,6 +368,14 @@ def _rosdep_main(args):
                       help="Affects the 'update' verb. "
                            'If specified end-of-life distros are being '
                            'fetched too.')
+    parser.add_option('--exclude-test-deps', dest='exclude_test_deps',
+                      default=False, action='store_true',
+                      help="Affects the 'check', 'keys', and 'install' verbs. "
+                           'If specified rosdep will exclude test dependencies.')
+    parser.add_option('--include-doc-deps', dest='include_doc_deps',
+                      default=False, action='store_true',
+                      help="Affects the 'check', 'keys', and 'install' verbs. "
+                           'If specified rosdep will include doc dependencies.')
 
     options, args = parser.parse_args(args)
     if options.print_version or options.print_all_versions:
@@ -667,16 +675,16 @@ def command_update(options):
 
 def command_keys(lookup, packages, options):
     lookup = _get_default_RosdepLookup(options)
-    rosdep_keys = get_keys(lookup, packages, options.recursive)
+    rosdep_keys = get_keys(lookup, packages, options.recursive, options.exclude_test_deps, options.include_doc_deps)
     prune_catkin_packages(rosdep_keys, options.verbose)
     _print_lookup_errors(lookup)
     print('\n'.join(rosdep_keys))
 
 
-def get_keys(lookup, packages, recursive):
+def get_keys(lookup, packages, recursive, exclude_test_deps, include_doc_deps):
     rosdep_keys = set()  # using a set to ensure uniqueness
     for package_name in packages:
-        deps = lookup.get_rosdeps(package_name, implicit=recursive)
+        deps = lookup.get_rosdeps(package_name, implicit=recursive, exclude_test_deps=exclude_test_deps, include_doc_deps=include_doc_deps)
         rosdep_keys.update(deps)
     return list(rosdep_keys)
 

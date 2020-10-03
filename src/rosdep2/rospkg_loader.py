@@ -130,7 +130,7 @@ class RosPkgLoader(RosdepLoader):
             self._catkin_packages_cache.update(find_catkin_paths(self._rosstack))
         return self._catkin_packages_cache
 
-    def get_rosdeps(self, resource_name, implicit=True):
+    def get_rosdeps(self, resource_name, implicit=True, exclude_test_deps=False, include_doc_deps=False):
         """
         If *resource_name* is a stack, returns an empty list.
 
@@ -140,7 +140,13 @@ class RosPkgLoader(RosdepLoader):
         if resource_name in self.get_catkin_paths():
             pkg = catkin_pkg.package.parse_package(self.get_catkin_paths()[resource_name])
             pkg.evaluate_conditions(os.environ)
-            deps = pkg.build_depends + pkg.buildtool_depends + pkg.run_depends + pkg.test_depends + pkg.buildtool_export_depends
+            deps = pkg.build_depends + pkg.buildtool_depends + pkg.run_depends + pkg.buildtool_export_depends
+
+            if not exclude_test_deps:
+                deps += pkg.test_depends
+            if include_doc_deps:
+                deps += pkg.doc_depends
+
             return [d.name for d in deps if d.evaluated_condition]
         elif resource_name in self.get_loadable_resources():
             rosdeps = set(self._rospack.get_rosdeps(resource_name, implicit=False))
